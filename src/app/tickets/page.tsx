@@ -2,35 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-// WhatsAppSupport import removed
-
-// Define TypeScript interfaces (keep all your existing interfaces)
-interface Ticket {
-  id: number;
-  ticketId: string;
-  company: string;
-  companyId: number;
-  contact: string;
-  contactPhone: string;
-  contactEmail: string;
-  device: string;
-  deviceId: number;
-  problem: string;
-  description: string;
-  category: string;
-  priority: string;
-  status: string;
-  createdDate: string;
-  createdBy: string;
-  assignedTo: string;
-  assignedToId: number;
-  dueDate: string;
-  attachments: number;
-  comments: number;
-  whatsappEnabled: boolean;
-  resolvedDate?: string;
-  resolution?: string;
-}
 
 // Define TypeScript interfaces
 interface Ticket {
@@ -64,10 +35,6 @@ export default function TicketsPage() {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [showModal, setShowModal] = useState(false);
-<<<<<<< HEAD
-=======
-  // Removed: const [showWhatsAppForm, setShowWhatsAppForm] = useState(false);
->>>>>>> d0206b8 (Updated devices & tickets pages and added WhatsAppSupport component)
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -365,17 +332,11 @@ export default function TicketsPage() {
     setShowCompanyDropdown(false);
   };
 
-<<<<<<< HEAD
-  // Function to send WhatsApp message
-  const sendWhatsAppMessage = (ticket: Ticket, message: string) => {
-    console.log(`Sending WhatsApp to ${ticket.contactPhone}: ${message}`);
-=======
   // Function to send WhatsApp message (using click-to-chat)
   const sendWhatsAppMessage = (phone: string, message: string) => {
     const cleanPhone = phone.replace(/\D/g, '');
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
->>>>>>> d0206b8 (Updated devices & tickets pages and added WhatsAppSupport component)
     setWhatsappSent(true);
     setTimeout(() => {
       setWhatsappSent(false);
@@ -416,28 +377,25 @@ export default function TicketsPage() {
 
     setTickets([...tickets, newTicket]);
 
-    const whatsappMessage = `🔔 *NEW TICKET CREATED*\n\n` +
+    const whatsappMessage = `🔔 *New Ticket Created*\n\n` +
       `Ticket ID: ${newTicketId}\n` +
       `Problem: ${formData.problem}\n` +
       `Priority: ${formData.priority}\n` +
       `Status: Open\n\n` +
-      `Your ticket has been created. Our technician will contact you soon.`;
+      `Your ticket has been created. Our technician will contact you soon.\n` +
+      `Thank you for your patience.`;
 
     sendWhatsAppMessage(formData.contactPhone, whatsappMessage);
     setShowModal(false);
   };
 
-  // Function to update ticket status with WhatsApp notification - FIXED TYPE ERROR HERE
+  // Function to update ticket status with WhatsApp notification
   const updateTicketStatus = (ticketId: number, newStatus: string, note: string = '') => {
     const updatedTicket = tickets.find(t => t.id === ticketId);
     
     setTickets(tickets.map((ticket: Ticket): Ticket => {
       if (ticket.id === ticketId) {
         if (newStatus === 'Closed') {
-<<<<<<< HEAD
-          // For closed tickets, add resolvedDate and resolution
-=======
->>>>>>> d0206b8 (Updated devices & tickets pages and added WhatsAppSupport component)
           return {
             ...ticket,
             status: newStatus,
@@ -445,10 +403,6 @@ export default function TicketsPage() {
             resolution: note || 'Issue resolved'
           };
         } else {
-<<<<<<< HEAD
-          // For other status changes, don't add resolvedDate/resolution
-=======
->>>>>>> d0206b8 (Updated devices & tickets pages and added WhatsAppSupport component)
           return {
             ...ticket,
             status: newStatus
@@ -462,20 +416,16 @@ export default function TicketsPage() {
       let statusMessage = '';
       
       if (newStatus === 'In Progress') {
-        statusMessage = `🔄 *TICKET STATUS UPDATE*\n\n` +
+        statusMessage = `🔄 *Ticket Status Update*\n\n` +
           `Ticket ID: ${updatedTicket.ticketId}\n` +
           `Status: In Progress\n` +
-          `Note: ${note || 'Technician has started working on your ticket.'}`;
+          `Note: ${note || 'Technician has started working on your ticket.'}\n\n` +
+          `We will keep you updated.`;
       } else if (newStatus === 'Closed') {
-        statusMessage = `✅ *TICKET RESOLVED*\n\n` +
+        statusMessage = `✅ *Ticket Resolved*\n\n` +
           `Ticket ID: ${updatedTicket.ticketId}\n` +
           `Status: Closed\n` +
-<<<<<<< HEAD
-          `Resolution: ${note || 'Issue resolved'}\n\n` +
-          `Thank you for your patience. Please let us know if you need further assistance.`;
-=======
           `Resolution: ${note || 'Issue resolved'}`;
->>>>>>> d0206b8 (Updated devices & tickets pages and added WhatsAppSupport component)
       }
 
       if (statusMessage) {
@@ -743,7 +693,7 @@ export default function TicketsPage() {
             <div style={{ flex: 1 }}>
               <span style={{ fontWeight: 'bold', color: '#075e54' }}>WhatsApp Integration Active</span>
               <span style={{ marginLeft: '10px', fontSize: '13px', color: '#128C7E' }}>
-                Click-to-Chat enabled - No API required
+                Customers will receive notifications on new tickets and status updates
               </span>
             </div>
             <span style={{ color: '#25D366', fontWeight: 'bold' }}>✓ Connected</span>
@@ -1017,7 +967,7 @@ export default function TicketsPage() {
                 gap: '10px'
               }}>
                 <span>✅</span>
-                <span>WhatsApp opened with your message!</span>
+                <span>Message sent successfully via WhatsApp!</span>
               </div>
             )}
 
@@ -1048,7 +998,7 @@ export default function TicketsPage() {
                   gap: '5px'
                 }}
               >
-                <span>📤</span> Open WhatsApp
+                <span>📤</span> Send via WhatsApp
               </button>
             </div>
           </div>
