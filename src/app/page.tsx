@@ -44,13 +44,7 @@ export default function Home() {
           ✅ System is Working!
         </h1>
         
-        <p style={{ 
-          fontSize: '18px', 
-          color: '#4b5563',
-          marginBottom: '30px'
-        }}>
-          Your Next.js setup is correct.
-        </p>
+   
         
         <div style={{
           width: '100%',
