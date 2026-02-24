@@ -69,7 +69,7 @@ export default function DevicesPage() {
       amcExpiry: '2024-06-30',
       lastMaintenance: '2024-01-10',
       nextMaintenance: '2024-04-10',
-      type: 'Laser Printer',
+      // Removed duplicate type property
       connectivity: 'USB, Wireless',
       ipAddress: '192.168.1.105',
       assignedTo: 'IT Dept',
