@@ -3,11 +3,39 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+// Define TypeScript interfaces
+interface Ticket {
+  id: number;
+  ticketId: string;
+  company: string;
+  companyId: number;
+  contact: string;
+  contactPhone: string;
+  contactEmail: string;
+  device: string;
+  deviceId: number;
+  problem: string;
+  description: string;
+  category: string;
+  priority: string;
+  status: string;
+  createdDate: string;
+  createdBy: string;
+  assignedTo: string;
+  assignedToId: number;
+  dueDate: string;
+  attachments: number;
+  comments: number;
+  whatsappEnabled: boolean;
+  resolvedDate?: string;
+  resolution?: string;
+}
+
 export default function TicketsPage() {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
@@ -45,7 +73,7 @@ export default function TicketsPage() {
   ];
 
   // Product catalog by category
-  const productCatalog = {
+  const productCatalog: { [key: string]: string[] } = {
     'Laptop': [
       'Dell Latitude 5420',
       'Dell XPS 13',
@@ -132,8 +160,8 @@ export default function TicketsPage() {
     ]
   };
 
-  // Tickets data with state management
-  const [tickets, setTickets] = useState([
+  // Tickets data with state management - Properly typed
+  const [tickets, setTickets] = useState<Ticket[]>([
     { 
       id: 1,
       ticketId: 'TKT-2024-001',
@@ -291,8 +319,8 @@ export default function TicketsPage() {
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setSelectedProduct('');
-    if (category && productCatalog[category as keyof typeof productCatalog]) {
-      setFilteredProducts(productCatalog[category as keyof typeof productCatalog]);
+    if (category && productCatalog[category]) {
+      setFilteredProducts(productCatalog[category]);
     } else {
       setFilteredProducts([]);
     }
@@ -302,11 +330,10 @@ export default function TicketsPage() {
   const handleCompanySelect = (company: any) => {
     setCompanySearch(company.name);
     setShowCompanyDropdown(false);
-    // You can also set company ID or other data here
   };
 
   // Function to send WhatsApp message
-  const sendWhatsAppMessage = (ticket: any, message: string) => {
+  const sendWhatsAppMessage = (ticket: Ticket, message: string) => {
     console.log(`Sending WhatsApp to ${ticket.contactPhone}: ${message}`);
     setWhatsappSent(true);
     setTimeout(() => {
@@ -321,7 +348,7 @@ export default function TicketsPage() {
     const newId = tickets.length + 1;
     const newTicketId = `TKT-2024-${newId.toString().padStart(3, '0')}`;
     
-    const newTicket = {
+    const newTicket: Ticket = {
       id: newId,
       ticketId: newTicketId,
       company: formData.company,
@@ -360,19 +387,30 @@ export default function TicketsPage() {
     setShowModal(false);
   };
 
-  // Function to update ticket status with WhatsApp notification
+  // Function to update ticket status with WhatsApp notification - FIXED TYPE ERROR HERE
   const updateTicketStatus = (ticketId: number, newStatus: string, note: string = '') => {
     const updatedTicket = tickets.find(t => t.id === ticketId);
     
-    setTickets(tickets.map(ticket => 
-      ticket.id === ticketId 
-        ? { 
-            ...ticket, 
+    setTickets(tickets.map((ticket: Ticket): Ticket => {
+      if (ticket.id === ticketId) {
+        if (newStatus === 'Closed') {
+          // For closed tickets, add resolvedDate and resolution
+          return {
+            ...ticket,
             status: newStatus,
-            ...(newStatus === 'Closed' ? { resolvedDate: new Date().toLocaleString(), resolution: note } : {})
-          }
-        : ticket
-    ));
+            resolvedDate: new Date().toLocaleString(),
+            resolution: note || 'Issue resolved'
+          };
+        } else {
+          // For other status changes, don't add resolvedDate/resolution
+          return {
+            ...ticket,
+            status: newStatus
+          };
+        }
+      }
+      return ticket;
+    }));
 
     if (updatedTicket) {
       let statusMessage = '';
@@ -387,7 +425,7 @@ export default function TicketsPage() {
         statusMessage = `✅ *Ticket Resolved*\n\n` +
           `Ticket ID: ${updatedTicket.ticketId}\n` +
           `Status: Closed\n` +
-          `Resolution: ${note}\n\n` +
+          `Resolution: ${note || 'Issue resolved'}\n\n` +
           `Thank you for your patience. Please let us know if you need further assistance.`;
       }
 
@@ -438,13 +476,13 @@ export default function TicketsPage() {
     }
   };
 
-  const handleStatusAction = (ticket: any, action: string) => {
+  const handleStatusAction = (ticket: Ticket, action: string) => {
     setSelectedTicket(ticket);
     setStatusAction(action);
     setShowStatusModal(true);
   };
 
-  const handleSendWhatsApp = (ticket: any) => {
+  const handleSendWhatsApp = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setWhatsappMessage(`Ticket ${ticket.ticketId} update: Your ticket is ${ticket.status}`);
     setShowWhatsAppModal(true);
@@ -1353,6 +1391,7 @@ export default function TicketsPage() {
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>Company Name *</label>
                   <input
                     type="text"
+                    name="company"
                     placeholder="Type to search company..."
                     value={companySearch}
                     onChange={(e) => {
@@ -1389,6 +1428,7 @@ export default function TicketsPage() {
                           onClick={() => {
                             handleCompanySelect(company);
                             (document.querySelector('input[name="company"]') as HTMLInputElement).value = company.name;
+                            setShowCompanyDropdown(false);
                           }}
                           style={{
                             padding: '12px',
@@ -1404,7 +1444,6 @@ export default function TicketsPage() {
                       ))}
                     </div>
                   )}
-                  <input type="hidden" name="company" value={companySearch} />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
